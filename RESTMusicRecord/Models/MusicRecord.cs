@@ -2,7 +2,8 @@
 {
     public class MusicRecord
     
-        {
+        { 
+        // vores modelklasse - beskriver hvordan et objekt ser ud i vores program 
             public int Id { get; set; }
             public string? Title { get; set; }
             public string? Artist { get; set; }

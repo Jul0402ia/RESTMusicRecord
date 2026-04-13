@@ -70,5 +70,26 @@
             return musicRecordCopy;
 
         }
+        public MusicRecord? Update(int id, MusicRecord updatedMusicRecord)
+        {
+            MusicRecord? existingMusicRecord = m_musicRecords.FirstOrDefault(m => m.Id == id);
+            if (existingMusicRecord == null)
+            {
+                return null;
+            }
+            existingMusicRecord.Title = updatedMusicRecord.Title;
+            existingMusicRecord.Artist = updatedMusicRecord.Artist;
+            existingMusicRecord.Duration = updatedMusicRecord.Duration;
+            existingMusicRecord.PublicationYear = updatedMusicRecord.PublicationYear;
+            MusicRecord musicRecordCopy = new MusicRecord
+            {
+                Id = existingMusicRecord.Id,
+                Title = existingMusicRecord.Title,
+                Artist = existingMusicRecord.Artist,
+                Duration = existingMusicRecord.Duration,
+                PublicationYear = existingMusicRecord.PublicationYear
+            };
+            return musicRecordCopy;
+        }
     }
 }

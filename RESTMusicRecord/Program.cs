@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Builder;
+
 namespace RESTMusicRecord
 {
     public class Program
@@ -26,6 +28,26 @@ namespace RESTMusicRecord
             // Add swagger services 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+
+            var app = builder.Build();
+
+            // Enables Swagger in development
+            //if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
+
+            // Enables CORS
+            app.UseCors("AllowAll");
+
+            //app.UseHttpsRedirection();
+            app.UseAuthorization();
+
+            app.MapControllers();
+
+            app.Run();
 
         }
     }

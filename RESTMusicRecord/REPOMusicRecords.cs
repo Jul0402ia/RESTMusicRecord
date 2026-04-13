@@ -34,5 +34,21 @@
             return musicRecordCopy;
 
         }
+        public MusicRecord Add(MusicRecord musicRecord)
+        {
+            musicRecord.Id = nextid++;
+            m_musicRecords.Add(musicRecord);
+
+            MusicRecord musicRecordCopy = new MusicRecord
+            {
+                Id = musicRecord.Id,
+                Title = musicRecord.Title,
+                Artist = musicRecord.Artist,
+                Duration = musicRecord.Duration,
+                PublicationYear = musicRecord.PublicationYear
+            };
+            return musicRecordCopy;
+
+        }
     }
 }

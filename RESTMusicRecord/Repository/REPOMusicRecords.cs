@@ -1,6 +1,8 @@
-﻿namespace RESTMusicRecord
+﻿using RESTMusicRecord.Models;
+
+namespace RESTMusicRecord.Repository
 {
-    public class REPOMusicRecords
+    public class REPOMusicRecords : IMusicRecordRepository
     {
         private List<MusicRecord> m_musicRecords = new List<MusicRecord>();
 

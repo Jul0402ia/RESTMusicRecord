@@ -50,5 +50,25 @@
             return musicRecordCopy;
 
         }
+        public MusicRecord? Remove(int id)
+        {
+            MusicRecord? musicRecord = m_musicRecords.FirstOrDefault(m => m.Id == id);
+            if (musicRecord == null)
+            {
+                return null;
+            }
+            m_musicRecords.Remove(musicRecord);
+
+            MusicRecord musicRecordCopy = new MusicRecord
+            {
+                Id = musicRecord.Id,
+                Title = musicRecord.Title,
+                Artist = musicRecord.Artist,
+                Duration = musicRecord.Duration,
+                PublicationYear = musicRecord.PublicationYear
+            };
+            return musicRecordCopy;
+
+        }
     }
 }

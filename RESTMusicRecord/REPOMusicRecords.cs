@@ -29,6 +29,33 @@
             {
                 musicRecords = musicRecords.FindAll(m => m.PublicationYear == publicationYear);
             }
+            if (sortBy != null) 
+            {
+                switch (sortBy.ToLower()) 
+                {
+                    case "Id":
+                        musicRecords = musicRecords.OrderBy(m =>  m.Id).ToList(); 
+                        break;
+                    case "title":
+                        musicRecords = musicRecords.OrderBy(m => m.Title).ToList();
+                        break;
+                    case "Artist":
+                        musicRecords = musicRecords.OrderBy(m => m.Artist).ToList();
+                        break;
+                    case "Duration":
+                        musicRecords = musicRecords.OrderByDescending(m => m.Duration).ToList();
+                        break;
+                    case "PublicationYear":
+                        musicRecords = musicRecords.OrderByDescending(m => m.PublicationYear).ToList();
+                        break;
+                    case "Durationasc":
+                        musicRecords = musicRecords.OrderBy(m => m.Duration).ToList();
+                        break;
+                    case "PublicationYearasc":
+                        musicRecords = musicRecords.OrderBy(m => m.PublicationYear).ToList();
+                        break;
+                }
+            }
             return musicRecords;
         }
 

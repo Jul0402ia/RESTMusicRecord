@@ -9,9 +9,26 @@
         public REPOMusicRecords() { }
 
         // læs om readonly collections i C# og overvej at bruge det i stedet for at returnere en kopi af listen, tænk på pladsen listen bruger i hukommelsen, og om det er nødvendigt at returnere en kopi af listen, eller om det er nok at returnere en readonly collection, som ikke kan ændres uden for klassen.
-        public IEnumerable<MusicRecord> GetAll()
+        public IEnumerable<MusicRecord> GetAll(string title = null, string artist = null,int? duration = null,int? publicationYear =null, string sortBy = null)
         {
             List<MusicRecord> musicRecords = new List<MusicRecord>(m_musicRecords);
+            if (title != null)
+            {
+                musicRecords = musicRecords.FindAll(m => m.Title.StartsWith (title));
+            }
+            if (artist != null) 
+            {
+                musicRecords = musicRecords.FindAll(m => m.Artist.StartsWith(artist));
+            }
+            if (duration != null)
+            {
+                musicRecords = musicRecords.FindAll(m => m.Duration == duration);
+
+            }
+            if (publicationYear != null) 
+            {
+                musicRecords = musicRecords.FindAll(m => m.PublicationYear == publicationYear);
+            }
             return musicRecords;
         }
 

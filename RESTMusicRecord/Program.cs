@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 
 namespace RESTMusicRecord
 {
@@ -6,10 +7,14 @@ namespace RESTMusicRecord
     {
         public static void Main(string[] args)
         {
-            var builder = WebApplication.CreateBuilder(args);
+            WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-            // adds controller support 
+            // adds controller support
             builder.Services.AddControllers();
+
+            // adds database connection
+            builder.Services.AddDbContext<MusicRecordDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // add cors policy
             builder.Services.AddCors(options =>
@@ -20,39 +25,26 @@ namespace RESTMusicRecord
                         policy.AllowAnyOrigin()
                               .AllowAnyMethod()
                               .AllowAnyHeader();
-
-
                     });
             });
 
-            // Add swagger services 
+            // add swagger services
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            WebApplication app = builder.Build();
 
-            var app = builder.Build();
+            app.UseSwagger();
+            app.UseSwaggerUI();
 
-            // Enables Swagger in development
-            //if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
-
-            // Enables CORS
             app.UseCors("AllowAll");
 
-            //app.UseHttpsRedirection();
+            // app.UseHttpsRedirection();
             app.UseAuthorization();
 
             app.MapControllers();
 
             app.Run();
-
         }
     }
 }
-
-
-
-

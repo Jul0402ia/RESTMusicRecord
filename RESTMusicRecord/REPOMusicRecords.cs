@@ -1,4 +1,7 @@
-﻿namespace RESTMusicRecord
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace RESTMusicRecord
 {
     public class REPOMusicRecords : IREPOMusicRecords
     {
@@ -6,66 +9,80 @@
 
         private static int nextid = 1;
 
-        public REPOMusicRecords() { }
+        public REPOMusicRecords()
+        {
+        }
 
-        // læs om readonly collections i C# og overvej at bruge det i stedet for at returnere en kopi af listen, tænk på pladsen listen bruger i hukommelsen, og om det er nødvendigt at returnere en kopi af listen, eller om det er nok at returnere en readonly collection, som ikke kan ændres uden for klassen.
         public IEnumerable<MusicRecord> GetAll(string? title = null, string? artist = null, int? duration = null, int? publicationYear = null, string? sortBy = null)
         {
             List<MusicRecord> musicRecords = new List<MusicRecord>(m_musicRecords);
+
             if (title != null)
             {
-                musicRecords = musicRecords.FindAll(m => m.Title.StartsWith(title));
+                musicRecords = musicRecords.FindAll(m => m.Title != null && m.Title.StartsWith(title));
             }
+
             if (artist != null)
             {
-                musicRecords = musicRecords.FindAll(m => m.Artist.StartsWith(artist));
+                musicRecords = musicRecords.FindAll(m => m.Artist != null && m.Artist.StartsWith(artist));
             }
+
             if (duration != null)
             {
                 musicRecords = musicRecords.FindAll(m => m.Duration == duration);
-
             }
+
             if (publicationYear != null)
             {
                 musicRecords = musicRecords.FindAll(m => m.PublicationYear == publicationYear);
             }
+
             if (sortBy != null)
             {
                 switch (sortBy.ToLower())
                 {
-                    case "Id":
+                    case "id":
                         musicRecords = musicRecords.OrderBy(m => m.Id).ToList();
                         break;
+
                     case "title":
                         musicRecords = musicRecords.OrderBy(m => m.Title).ToList();
                         break;
-                    case "Artist":
+
+                    case "artist":
                         musicRecords = musicRecords.OrderBy(m => m.Artist).ToList();
                         break;
-                    case "Duration":
+
+                    case "duration":
                         musicRecords = musicRecords.OrderByDescending(m => m.Duration).ToList();
                         break;
-                    case "PublicationYear":
+
+                    case "publicationyear":
                         musicRecords = musicRecords.OrderByDescending(m => m.PublicationYear).ToList();
                         break;
-                    case "Durationasc":
+
+                    case "durationasc":
                         musicRecords = musicRecords.OrderBy(m => m.Duration).ToList();
                         break;
-                    case "PublicationYearasc":
+
+                    case "publicationyearasc":
                         musicRecords = musicRecords.OrderBy(m => m.PublicationYear).ToList();
                         break;
                 }
             }
+
             return musicRecords;
         }
 
         public MusicRecord? GetById(int id)
         {
-            MusicRecord musicRecord = m_musicRecords.FirstOrDefault(m => m.Id == id);
+            MusicRecord? musicRecord = m_musicRecords.FirstOrDefault(m => m.Id == id);
+
             if (musicRecord == null)
             {
                 return null;
             }
+
             MusicRecord musicRecordCopy = new MusicRecord
             {
                 Id = musicRecord.Id,
@@ -73,34 +90,45 @@
                 Artist = musicRecord.Artist,
                 Duration = musicRecord.Duration,
                 PublicationYear = musicRecord.PublicationYear
-
             };
-            return musicRecordCopy;
 
+            return musicRecordCopy;
         }
+
         public MusicRecord Add(MusicRecord musicRecord)
         {
-            musicRecord.Id = nextid++;
-            m_musicRecords.Add(musicRecord);
-
-            MusicRecord musicRecordCopy = new MusicRecord
+            MusicRecord newMusicRecord = new MusicRecord
             {
-                Id = musicRecord.Id,
+                Id = nextid++,
                 Title = musicRecord.Title,
                 Artist = musicRecord.Artist,
                 Duration = musicRecord.Duration,
                 PublicationYear = musicRecord.PublicationYear
             };
-            return musicRecordCopy;
 
+            m_musicRecords.Add(newMusicRecord);
+
+            MusicRecord musicRecordCopy = new MusicRecord
+            {
+                Id = newMusicRecord.Id,
+                Title = newMusicRecord.Title,
+                Artist = newMusicRecord.Artist,
+                Duration = newMusicRecord.Duration,
+                PublicationYear = newMusicRecord.PublicationYear
+            };
+
+            return musicRecordCopy;
         }
+
         public MusicRecord? Remove(int id)
         {
             MusicRecord? musicRecord = m_musicRecords.FirstOrDefault(m => m.Id == id);
+
             if (musicRecord == null)
             {
                 return null;
             }
+
             m_musicRecords.Remove(musicRecord);
 
             MusicRecord musicRecordCopy = new MusicRecord
@@ -111,20 +139,24 @@
                 Duration = musicRecord.Duration,
                 PublicationYear = musicRecord.PublicationYear
             };
-            return musicRecordCopy;
 
+            return musicRecordCopy;
         }
+
         public MusicRecord? Update(int id, MusicRecord updatedMusicRecord)
         {
             MusicRecord? existingMusicRecord = m_musicRecords.FirstOrDefault(m => m.Id == id);
+
             if (existingMusicRecord == null)
             {
                 return null;
             }
+
             existingMusicRecord.Title = updatedMusicRecord.Title;
             existingMusicRecord.Artist = updatedMusicRecord.Artist;
             existingMusicRecord.Duration = updatedMusicRecord.Duration;
             existingMusicRecord.PublicationYear = updatedMusicRecord.PublicationYear;
+
             MusicRecord musicRecordCopy = new MusicRecord
             {
                 Id = existingMusicRecord.Id,
@@ -133,6 +165,7 @@
                 Duration = existingMusicRecord.Duration,
                 PublicationYear = existingMusicRecord.PublicationYear
             };
+
             return musicRecordCopy;
         }
     }

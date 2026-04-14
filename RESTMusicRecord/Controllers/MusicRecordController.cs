@@ -30,11 +30,13 @@ namespace RESTMusicRecord.Controllers
         {
             IEnumerable<MusicRecord> musicRecords = _repo.GetAll(title, artist, duration, publicationYear, sortBy);
 
+            // Hvis listen er tom → 204 NoContent
             if (!musicRecords.Any())
             {
                 return NoContent();
             }
 
+            // Ellers returneres data
             return Ok(musicRecords);
         }
 
@@ -46,18 +48,22 @@ namespace RESTMusicRecord.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<MusicRecord> Get(int id)
         {
+            // Tjekker om id er gyldigt
             if (id <= 0)
             {
                 return BadRequest("Id skal være større end 0.");
             }
 
+            // Finder record
             MusicRecord? musicRecord = _repo.GetById(id);
 
+            // Hvis ikke fundet - 404
             if (musicRecord == null)
             {
                 return NotFound();
             }
 
+            // Returnerer record
             return Ok(musicRecord);
         }
 
@@ -71,13 +77,37 @@ namespace RESTMusicRecord.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public ActionResult<MusicRecord> Post([FromBody] MusicRecord newMusicRecord)
         {
+            // Tjekker om objektet er null
             if (newMusicRecord == null)
             {
                 return BadRequest("Music record må ikke være null.");
             }
 
+            // Simpel validering (meget vigtigt til eksamen)
+            if (newMusicRecord.Title == null || newMusicRecord.Title.Trim().Length == 0)
+            {
+                return BadRequest("Title skal udfyldes.");
+            }
+
+            if (newMusicRecord.Artist == null || newMusicRecord.Artist.Trim().Length == 0)
+            {
+                return BadRequest("Artist skal udfyldes.");
+            }
+
+            if (newMusicRecord.Duration <= 0)
+            {
+                return BadRequest("Duration skal være større end 0.");
+            }
+
+            if (newMusicRecord.PublicationYear <= 0)
+            {
+                return BadRequest("PublicationYear skal være større end 0.");
+            }
+
+            // Opretter ny record
             MusicRecord createdMusicRecord = _repo.Add(newMusicRecord);
 
+            // Returnerer 201 Created + location header
             return CreatedAtAction(nameof(Get), new { id = createdMusicRecord.Id }, createdMusicRecord);
         }
 
@@ -92,23 +122,49 @@ namespace RESTMusicRecord.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public ActionResult<MusicRecord> Put(int id, [FromBody] MusicRecord value)
         {
+            // Tjekker id
             if (id <= 0)
             {
                 return BadRequest("Id skal være større end 0.");
             }
 
+            // Tjekker input
             if (value == null)
             {
                 return BadRequest("Music record må ikke være null.");
             }
 
+            // Validering
+            if (value.Title == null || value.Title.Trim().Length == 0)
+            {
+                return BadRequest("Title skal udfyldes.");
+            }
+
+            if (value.Artist == null || value.Artist.Trim().Length == 0)
+            {
+                return BadRequest("Artist skal udfyldes.");
+            }
+
+            if (value.Duration <= 0)
+            {
+                return BadRequest("Duration skal være større end 0.");
+            }
+
+            if (value.PublicationYear <= 0)
+            {
+                return BadRequest("PublicationYear skal være større end 0.");
+            }
+
+            // Opdaterer record
             MusicRecord? updatedMusicRecord = _repo.Update(id, value);
 
+            // Hvis ikke fundet → 404
             if (updatedMusicRecord == null)
             {
                 return NotFound();
             }
 
+            // Returnerer opdateret record
             return Ok(updatedMusicRecord);
         }
 
@@ -123,18 +179,22 @@ namespace RESTMusicRecord.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public ActionResult<MusicRecord> Delete(int id)
         {
+            // Tjekker id
             if (id <= 0)
             {
                 return BadRequest("Id skal være større end 0.");
             }
 
+            // Sletter record
             MusicRecord? deletedMusicRecord = _repo.Remove(id);
 
+            // Hvis ikke fundet → 404
             if (deletedMusicRecord == null)
             {
                 return NotFound();
             }
 
+            // Returnerer slettet record
             return Ok(deletedMusicRecord);
         }
 

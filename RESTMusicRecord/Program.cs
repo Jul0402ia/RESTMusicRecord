@@ -36,7 +36,7 @@ namespace RESTMusicRecord
             //if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
-                app.UseSwagger();
+                app.UseSwaggerUI();
             }
 
             // Enables CORS

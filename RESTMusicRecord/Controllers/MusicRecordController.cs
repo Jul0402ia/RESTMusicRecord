@@ -57,7 +57,7 @@ namespace RESTMusicRecord.Controllers
             // Finder record
             MusicRecord? musicRecord = _repo.GetById(id);
 
-            // Hvis ikke fundet - 404
+            // Hvis ikke fundet → 404
             if (musicRecord == null)
             {
                 return NotFound();
@@ -83,7 +83,7 @@ namespace RESTMusicRecord.Controllers
                 return BadRequest("Music record må ikke være null.");
             }
 
-            // Simpel validering (meget vigtigt til eksamen)
+            // Simpel validering
             if (newMusicRecord.Title == null || newMusicRecord.Title.Trim().Length == 0)
             {
                 return BadRequest("Title skal udfyldes.");
@@ -113,14 +113,11 @@ namespace RESTMusicRecord.Controllers
 
         // PUT api/MusicRecord/5
         // Opdaterer en eksisterende music record
-        // KRÆVER LOGIN
-        [Authorize]
         [HttpPut("{id}")]
         [ProducesResponseType(typeof(MusicRecord), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public ActionResult<MusicRecord> Put(int id, [FromBody] MusicRecord value)
+        public ActionResult<MusicRecord> Put(int id, [FromBody] MusicRecord updatedMusicRecord)
         {
             // Tjekker id
             if (id <= 0)
@@ -129,43 +126,43 @@ namespace RESTMusicRecord.Controllers
             }
 
             // Tjekker input
-            if (value == null)
+            if (updatedMusicRecord == null)
             {
                 return BadRequest("Music record må ikke være null.");
             }
 
             // Validering
-            if (value.Title == null || value.Title.Trim().Length == 0)
+            if (updatedMusicRecord.Title == null || updatedMusicRecord.Title.Trim().Length == 0)
             {
                 return BadRequest("Title skal udfyldes.");
             }
 
-            if (value.Artist == null || value.Artist.Trim().Length == 0)
+            if (updatedMusicRecord.Artist == null || updatedMusicRecord.Artist.Trim().Length == 0)
             {
                 return BadRequest("Artist skal udfyldes.");
             }
 
-            if (value.Duration <= 0)
+            if (updatedMusicRecord.Duration <= 0)
             {
                 return BadRequest("Duration skal være større end 0.");
             }
 
-            if (value.PublicationYear <= 0)
+            if (updatedMusicRecord.PublicationYear <= 0)
             {
                 return BadRequest("PublicationYear skal være større end 0.");
             }
 
             // Opdaterer record
-            MusicRecord? updatedMusicRecord = _repo.Update(id, value);
+            MusicRecord? result = _repo.Update(id, updatedMusicRecord);
 
             // Hvis ikke fundet → 404
-            if (updatedMusicRecord == null)
+            if (result == null)
             {
                 return NotFound();
             }
 
             // Returnerer opdateret record
-            return Ok(updatedMusicRecord);
+            return Ok(result);
         }
 
         // DELETE api/MusicRecord/5

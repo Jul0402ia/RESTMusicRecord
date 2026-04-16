@@ -1,97 +1,95 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 namespace RESTMusicRecord
 {
+    /// <summary>
+    /// This class starts the API and configures all services and middleware.
+    /// </summary>
     public class Program
     {
+        /// <summary>
+        /// Main method that starts the application.
+        /// </summary>
+        /// <param name="args">Command line arguments.</param>
         public static void Main(string[] args)
         {
             WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-            // ---------------- SERVICES ----------------
-            // Her registrerer vi de services, som programmet skal bruge
+            // ---------------- JWT SETTINGS ----------------
+            // Reads the Jwt section from appsettings.json.
+            IConfigurationSection jwtSettings = builder.Configuration.GetSection("Jwt");
+            byte[] key = Encoding.ASCII.GetBytes(jwtSettings["Key"]!);
 
-            // Tilføjer controller support
-            // Det gør, at vi kan bruge API controllers i projektet
+            // ---------------- SERVICES ----------------
+
+            // Adds support for API controllers.
             builder.Services.AddControllers();
 
-            // Opretter forbindelse til databasen via connection string
-            // DefaultConnection skal findes i appsettings.json
+            // Adds database connection.
             builder.Services.AddDbContext<MusicRecordDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(
+                    builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            // Fortæller systemet, hvilken repository der skal bruges,
-            // når nogen beder om IREPOMusicRecords
+            // Registers the repository.
             builder.Services.AddScoped<IREPOMusicRecords, MusicRecordRepositoryDatabase>();
 
-            // Tilføjer CORS policy
-            // Det gør, at frontend må kalde API et
+            // Adds CORS so frontend is allowed to call the API.
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowAll",
-                    policy =>
-                    {
-                        policy.AllowAnyOrigin()
-                              .AllowAnyMethod()
-                              .AllowAnyHeader();
-                    });
+                options.AddPolicy("AllowAll", policy =>
+                {
+                    policy.AllowAnyOrigin()
+                          .AllowAnyMethod()
+                          .AllowAnyHeader();
+                });
             });
 
-            // Tilføjer JWT authentication
-            // Her fortæller vi programmet, hvordan det skal validere token
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
+            // Adds JWT authentication.
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        // Vi holder det simpelt i denne opgave
-                        ValidateIssuer = false,
-                        ValidateAudience = false,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings["Issuer"],
+                    ValidAudience = jwtSettings["Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(key)
+                };
+            });
 
-                        // Hemmelig nøgle som bruges til at validere token
-                        IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes("THIS_IS_A_SECRET_KEY_12345678901234567890"))
-                    };
-                });
+            // Adds authorization.
+            builder.Services.AddAuthorization();
 
-            // Tilføjer Swagger
-            // Bruges til at teste API et i browseren
+            // Adds Swagger.
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            // Bygger appen
             WebApplication app = builder.Build();
 
             // ---------------- PIPELINE ----------------
-            // Pipeline er rækkefølgen af middleware
 
-            // Starter Swagger
-            // Så vi kan åbne /swagger og teste endpoints
             app.UseSwagger();
             app.UseSwaggerUI();
 
-            // Aktiverer CORS policy
+            app.UseHttpsRedirection();
+
             app.UseCors("AllowAll");
 
-            // Kunne bruges hvis vi ville tvinge HTTPS
-            // app.UseHttpsRedirection();
-
-            // Tjekker om brugeren sender gyldigt token
             app.UseAuthentication();
-
-            // Tjekker om brugeren har adgang til endpointet
             app.UseAuthorization();
 
-            // Mapper controllers til endpoints
             app.MapControllers();
 
-            // Starter API et
             app.Run();
         }
     }

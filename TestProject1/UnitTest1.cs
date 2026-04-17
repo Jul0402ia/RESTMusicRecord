@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using RESTMusicRecord;
+using RESTMusicRecord.Models;
+using RESTMusicRecord.Repositories;
 using Xunit;
 
 namespace TestProject1

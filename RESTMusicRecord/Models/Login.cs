@@ -1,4 +1,4 @@
-﻿namespace RESTMusicRecord
+﻿namespace RESTMusicRecord.Models
 {
     public class Login
     {

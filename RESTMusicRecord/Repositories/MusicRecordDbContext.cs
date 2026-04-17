@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RESTMusicRecord.Models;
 
-namespace RESTMusicRecord
+namespace RESTMusicRecord.Repositories
 {
     public class MusicRecordDbContext : DbContext
     {

@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
+using RESTMusicRecord.Models;
+using RESTMusicRecord.Repositories;
 
 namespace RESTMusicRecord.Controllers
 {

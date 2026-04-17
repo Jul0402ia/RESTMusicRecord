@@ -1,5 +1,6 @@
-﻿
-namespace RESTMusicRecord
+﻿using RESTMusicRecord.Models;
+
+namespace RESTMusicRecord.Repositories
 {
     public interface IREPOMusicRecords
     {

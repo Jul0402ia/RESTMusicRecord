@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using RESTMusicRecord.Models;
+using System.Collections.Generic;
 using System.Linq;
 
-namespace RESTMusicRecord
+namespace RESTMusicRecord.Repositories
 {
     public class REPOMusicRecords : IREPOMusicRecords
     {

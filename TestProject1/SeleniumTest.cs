@@ -1,21 +1,11 @@
-﻿using RESTMusicRecord;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit;
+﻿using System;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
+using Xunit;
 
 namespace TestProject1
 {
-
-    // Selenium tests that exercise the running RESTMusicRecord application (Swagger UI).
-    // Configure the tests using environment variables:
-    // - BASE_URL: base address where the API is running (default: https://localhost:5001)
-    // - HEADLESS: if "true", Chrome runs headless (default: false)
     public class MusicRecordSeleniumTests : IDisposable
     {
         private readonly IWebDriver _driver;
@@ -24,85 +14,92 @@ namespace TestProject1
 
         public MusicRecordSeleniumTests()
         {
-            _baseUrl = "https://localhost:7010";
+            // Base url til hjemmesiden
+            _baseUrl = "https://musicrecorddr-aybub4ede4hmdgcf.polandcentral-01.azurewebsites.net";
+
             ChromeOptions options = new ChromeOptions();
 
-            string headless = Environment.GetEnvironmentVariable("HEADLESS") ?? "false";
-            if (string.Equals(headless, "true", StringComparison.OrdinalIgnoreCase))
-            {
-                // Use the new headless flag when available; fallback is okay for older Chrome
-                options.AddArgument("--headless=new");
-            }
+            // Kører uden at åbne browser vindue
+            options.AddArgument("--headless=new");
 
+            // Chrome indstillinger
             options.AddArgument("--no-sandbox");
             options.AddArgument("--disable-dev-shm-usage");
             options.AddArgument("--disable-gpu");
 
-            // Prevent noisy ChromeDriver window
+            // Godkender https certifikat
+            options.AddArgument("--ignore-certificate-errors");
+            options.AcceptInsecureCertificates = true;
+
+            // Gemmer chromedriver vindue
             ChromeDriverService service = ChromeDriverService.CreateDefaultService();
             service.SuppressInitialDiagnosticInformation = true;
             service.HideCommandPromptWindow = true;
 
+            // Starter browser
             _driver = new ChromeDriver(service, options, TimeSpan.FromSeconds(30));
-            _driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(30);
 
-            _wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
+            // Ventetid
+            _wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(15));
         }
 
         [Fact]
-        public void SwaggerIndex_ShouldLoadAndContainContent()
+        public void SwaggerIndex_ShouldLoad()
         {
-            // Arrange
-            string url = $"{_baseUrl.TrimEnd('/')}/swagger/index.html";
+            // Url til swagger
+            string url = _baseUrl + "/swagger/index.html";
 
-            // Act
+            // Åbner side
             _driver.Navigate().GoToUrl(url);
 
-            // Wait until document ready
-            _wait.Until(d => ((IJavaScriptExecutor)d).ExecuteScript("return document.readyState").Equals("complete"));
+            // Venter til siden er loaded
+            _wait.Until(driver =>
+                ((IJavaScriptExecutor)driver)
+                .ExecuteScript("return document.readyState")
+                .ToString() == "complete");
 
-            // Assert: page returned content
-            Assert.True(!string.IsNullOrWhiteSpace(_driver.PageSource), "Page source should not be empty.");
+            // Tjekker at siden har indhold
+            Assert.False(string.IsNullOrWhiteSpace(_driver.PageSource));
         }
 
         [Fact]
-        public void SwaggerUi_ContainerShouldBePresent()
+        public void SwaggerUi_ShouldExist()
         {
-            // Arrange
-            string url = $"{_baseUrl.TrimEnd('/')}/swagger/index.html";
+            // Url til swagger
+            string url = _baseUrl + "/swagger/index.html";
 
-            // Act
+            // Åbner side
             _driver.Navigate().GoToUrl(url);
 
-            // Wait for the main swagger-ui container (this selector is stable for Swagger UI)
-            bool found = false;
-            try
+            // Finder swagger container
+            IWebElement element = _wait.Until(driver =>
             {
-                _wait.Until(d => d.FindElement(By.CssSelector(".swagger-ui")) != null);
-                found = true;
-            }
-            catch (WebDriverTimeoutException)
-            {
-                found = false;
-            }
+                try
+                {
+                    return driver.FindElement(By.CssSelector(".swagger-ui"));
+                }
+                catch
+                {
+                    return null;
+                }
+            });
 
-            // Assert
-            Assert.True(found, "Expected the Swagger UI container (.swagger-ui) to be present on the page.");
+            // Tjekker om den findes
+            Assert.NotNull(element);
         }
 
         public void Dispose()
         {
             try
             {
+                // Lukker browser
                 _driver.Quit();
             }
             catch
             {
-                // best-effort cleanup
             }
 
             _driver.Dispose();
         }
-        
     }
 }

@@ -7,82 +7,87 @@ using System.Text;
 
 namespace RESTMusicRecord
 {
-    /// <summary>
-    /// This class starts the API and configures all services and middleware.
-    /// </summary>
     public class Program
     {
         /// <summary>
-        /// Main method that starts the application.
+        /// Main metode som starter hele API'en
         /// </summary>
-        /// <param name="args">Command line arguments.</param>
+        /// <param name="args">Det programmet modtager ved opstart</param>
         public static void Main(string[] args)
         {
+            // Opretter builder som bruges til at sætte programmet op
             WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-            // ---------------- JWT SETTINGS ----------------
-            // Reads the Jwt section from appsettings.json.
+            // ---------------- JWT ----------------
+
+            // Henter Jwt sektionen fra appsettings.json
             IConfigurationSection jwtSettings = builder.Configuration.GetSection("Jwt");
+
+            // Laver secret key om til bytes så systemet kan bruge den
             byte[] key = Encoding.UTF8.GetBytes(jwtSettings["Key"]!);
 
             // ---------------- SERVICES ----------------
 
-            // Adds support for API controllers.
+            // Tilføjer controller support så endpoints virker
             builder.Services.AddControllers();
 
-            // Adds database connection.
+            // Tilføjer database forbindelse til SQL Server
             builder.Services.AddDbContext<MusicRecordDbContext>(options =>
                 options.UseSqlServer(
                     builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            // Registers the repository.
+            // Registrerer repository så controller kan bruge database metoder
             builder.Services.AddScoped<IREPOMusicRecords, MusicRecordRepositoryDatabase>();
 
-            // Adds CORS so frontend is allowed to call the API.
+            // Tilføjer CORS så frontend må kontakte API'en
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll", policy =>
                 {
-                    policy.AllowAnyOrigin()
-                          .AllowAnyMethod()
-                          .AllowAnyHeader();
+                    policy.AllowAnyOrigin()   // alle må kalde API
+                          .AllowAnyMethod()   // GET POST PUT DELETE osv
+                          .AllowAnyHeader();  // alle headers tilladt
                 });
             });
 
-            // Adds JWT authentication.
+            // Tilføjer JWT login system
             builder.Services.AddAuthentication(options =>
             {
+                // Sætter JWT som standard login metode
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
             .AddJwtBearer(options =>
             {
+                // Regler for hvordan token bliver tjekket
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
+                    ValidateIssuer = true, // tjek hvem der har lavet token
+                    ValidateAudience = true, // tjek hvem token er lavet til
+                    ValidateLifetime = true, // tjek om token er udløbet
+                    ValidateIssuerSigningKey = true, // tjek secret key
+
                     ValidIssuer = jwtSettings["Issuer"],
                     ValidAudience = jwtSettings["Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(key),
 
-                    // tells ASP.NET Core which claim is the name
+                    // Fortæller hvad username hedder i token
                     NameClaimType = ClaimTypes.Name,
 
-                    // tells ASP.NET Core which claim is the role
+                    // Fortæller hvad role hedder i token
                     RoleClaimType = ClaimTypes.Role
                 };
             });
 
-            // Adds authorization.
+            // Tilføjer adgangskontrol med Authorize
             builder.Services.AddAuthorization();
 
-            // Adds Swagger + JWT support (så vi får Authorize-knap)
+            // Tilføjer Swagger så vi kan teste API
             builder.Services.AddEndpointsApiExplorer();
+
             builder.Services.AddSwaggerGen(options =>
             {
-                // fortæller Swagger at vi bruger Bearer token
+                // Laver Authorize knap i Swagger
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Name = "Authorization",
@@ -90,10 +95,10 @@ namespace RESTMusicRecord
                     Scheme = "bearer",
                     BearerFormat = "JWT",
                     In = ParameterLocation.Header,
-                    Description = "Write: Bearer {your token}"
+                    Description = "Skriv: Bearer dit_token"
                 });
 
-                // gør så Swagger sender token med requests
+                // Gør at Swagger sender token med requests
                 options.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
                     {
@@ -110,22 +115,31 @@ namespace RESTMusicRecord
                 });
             });
 
+            // Bygger selve appen færdig
             WebApplication app = builder.Build();
 
             // ---------------- PIPELINE ----------------
 
+            // Starter Swagger side
             app.UseSwagger();
             app.UseSwaggerUI();
 
+            // Tvinger HTTPS
             app.UseHttpsRedirection();
 
+            // Aktiverer CORS
             app.UseCors("AllowAll");
 
+            // Tjekker login token
             app.UseAuthentication();
+
+            // Tjekker adgang til endpoints
             app.UseAuthorization();
 
+            // Mapper controllers til endpoints
             app.MapControllers();
 
+            // Starter programmet
             app.Run();
         }
     }

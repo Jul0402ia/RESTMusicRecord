@@ -31,7 +31,7 @@ namespace RESTMusicRecord.Controllers
         {
             IEnumerable<MusicRecord> musicRecords = _repo.GetAll(title, artist, duration, publicationYear, sortBy);
 
-            // Hvis listen er tom → 204 NoContent
+            // Hvis listen er tom 
             if (!musicRecords.Any())
             {
                 return NoContent();
@@ -58,7 +58,7 @@ namespace RESTMusicRecord.Controllers
             // Finder record
             MusicRecord? musicRecord = _repo.GetById(id);
 
-            // Hvis ikke fundet → 404
+            // Hvis ikke fundet 404 fejl
             if (musicRecord == null)
             {
                 return NotFound();
@@ -70,7 +70,7 @@ namespace RESTMusicRecord.Controllers
 
         // POST api/MusicRecord
         // Tilføjer en ny music record
-        // KRÆVER LOGIN
+        // Kræver login
         [Authorize]
         [HttpPost]
         [ProducesResponseType(typeof(MusicRecord), StatusCodes.Status201Created)]
@@ -108,7 +108,7 @@ namespace RESTMusicRecord.Controllers
             // Opretter ny record
             MusicRecord createdMusicRecord = _repo.Add(newMusicRecord);
 
-            // Returnerer 201 Created + location header
+            // Returnerer 201 Created og location header
             return CreatedAtAction(nameof(Get), new { id = createdMusicRecord.Id }, createdMusicRecord);
         }
 
@@ -156,7 +156,7 @@ namespace RESTMusicRecord.Controllers
             // Opdaterer record
             MusicRecord? result = _repo.Update(id, updatedMusicRecord);
 
-            // Hvis ikke fundet → 404
+            // Hvis ikke fundet ellers 404 fejl
             if (result == null)
             {
                 return NotFound();
@@ -168,7 +168,7 @@ namespace RESTMusicRecord.Controllers
 
         // DELETE api/MusicRecord/5
         // Sletter en music record ud fra id
-        // KRÆVER LOGIN
+        // kræver login
         [Authorize]
         [HttpDelete("{id}")]
         [ProducesResponseType(typeof(MusicRecord), StatusCodes.Status200OK)]
@@ -186,7 +186,7 @@ namespace RESTMusicRecord.Controllers
             // Sletter record
             MusicRecord? deletedMusicRecord = _repo.Remove(id);
 
-            // Hvis ikke fundet → 404
+            // Hvis ikke fundetellers 404 fejl
             if (deletedMusicRecord == null)
             {
                 return NotFound();

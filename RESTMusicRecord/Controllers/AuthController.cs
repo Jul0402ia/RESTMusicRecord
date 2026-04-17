@@ -22,7 +22,7 @@ namespace RESTMusicRecord.Controllers
         [HttpPost("login")]
         public IActionResult Login([FromBody] Login login)
         {
-            // Tjekker om login-data mangler
+            // Tjekker om login data mangler
             if (login == null || login.Username == "" || login.Password == "")
             {
                 return BadRequest("Brugernavn og password skal udfyldes.");
@@ -34,7 +34,7 @@ namespace RESTMusicRecord.Controllers
                 return Unauthorized("Forkert brugernavn eller password.");
             }
 
-            // Henter Jwt-sektionen fra appsettings.json
+            // Henter Jwt sektionen fra appsettings.json
             IConfigurationSection jwtSettings = _configuration.GetSection("Jwt");
 
             // Henter hemmelig nøgle fra appsettings.json

@@ -1,17 +1,14 @@
 ﻿namespace RESTMusicRecord
 {
-    /// <summary>
-    /// This class is used to receive login data from the client.
-    /// </summary>
     public class Login
     {
-        // Username entered by the user
+        // brugernavn
         public string Username { get; set; }
 
-        // Password entered by the user
+        // kode
         public string Password { get; set; }
 
-        // Constructor ensures values are never null
+        // constructor
         public Login()
         {
             Username = string.Empty;

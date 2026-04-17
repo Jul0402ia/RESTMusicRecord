@@ -21,6 +21,7 @@ namespace RESTMusicRecord.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<MusicRecord>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public ActionResult<IEnumerable<MusicRecord>> Get(
             string? title = null,
             string? artist = null,

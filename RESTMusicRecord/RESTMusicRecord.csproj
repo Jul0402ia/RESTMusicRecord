@@ -4,6 +4,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>d752584a-11e2-45fe-88e8-778ac8f9259b</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,6 +12,10 @@
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.13" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.11" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.11">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.5" />
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="9.0.5" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="9.0.5" />
